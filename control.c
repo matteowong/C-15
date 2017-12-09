@@ -52,13 +52,22 @@ int main(int argc, char * argv[]) {
 	printf("file and semaphore already exist.\n");
       
     } else if (!strcmp(argv[1],"-v")) {
-      sem_id=semget(KEY,1,0600);
-      printf("semaphore value: %d\n",semctl(sem_id,0,GETVAL));
+      //sem_id=semget(KEY,1,0600);
+      //printf("semaphore value: %d\n",semctl(sem_id,0,GETVAL));
+      printf("story contents\n");
+      execlp("cat","cat","story",NULL);
     }
     else if (!strcmp(argv[1],"-r")) {
+      int signal;
       sem_id=semget(KEY,1,0600);
       printf("semaphore removed: %d\n",semctl(sem_id,0,IPC_RMID));
-      execlp("rm","rm","story",NULL);
+      shmctl(shmget(SHM_KEY,sizeof(int),0644),IPC_RMID,0);
+      if (fork()==0)
+	execlp("cat","cat","story",NULL);
+      else {
+	wait(&signal);
+	execlp("rm","rm","story",NULL);
+      }
     }
     else
       printf("improper input\n");
